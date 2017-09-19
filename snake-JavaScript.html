@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snake-javascript</title>
+</head>
+<body onkeydown="keyDown(event)">
+    <style>  
+        #she{border-collapse:collapse;}  
+        #she td{  
+            width:15px;  
+            height:15px; 
+            border:1px dashed rgba(155,155,155,.1);
+            border-radius: 50%;
+        }
+        .hei{ background-image: url(2.jpeg);background-size: 20px;background-repeat: no-repeat;}
+        .bai{ background:#fff;}  
+    </style>  
+    <script>  
+        var allTds = new Array();  
+        var ck = 30;//地图长宽  
+        var k = 4 ;//初始长度  
+        var she = new Array();//初始化蛇  
+        var x = 0;y = k - 1;//蛇头坐标  
+        var m, n;//食物坐标  
+        var dir = 1;//方向，1前，2后，3上，4下  
+        var dirLin = 1;//临时方向，防止转圈按上左右导致逆行，1前，2后，3上，4下  
+        var ji = null;//控制游戏进程  
+        var shan = null;//控制闪烁进程  
+        var mark = 0;//分数  
+        var sudu = 100;  
+        window.onload=function(){  
+            for(var i = 0;i<ck;i++){  
+                var tr = document.createElement("tr");  
+                var trs = new Array();  
+                for(var j=0;j<ck;j++){  
+                    var td=document.createElement("td");  
+                    trs[j] = td;  
+                    tr.appendChild(td);  
+                }  
+                document.getElementById("she").appendChild(tr);  
+                allTds[i] = trs;  
+            }
+            for(var g = 0;g< k;g++){  
+                she[g] = allTds[0][g];  
+                allTds[0][g].className = "hei";  
+            }  
+            shiwu();  
+        }  
+          
+          
+        function sheYin(obj){//蛇隐  
+            obj[0].className = "bai";  
+        }  
+        function sheXian(obj){//蛇现  
+            obj[obj.length-1].className = "hei";  
+        }  
+        function shiwu(){  
+            if(shan!=null){  
+                clearTimeout(shan)  
+            }  
+            m = Math.floor(Math.random()*ck);  
+            n = Math.floor(Math.random()*ck);  
+            if(allTds[m][n].className =="hei"){  
+                shiwu();  
+            }else{allTds[m][n].className ="hei";}  
+              
+            shanshuo();  
+        }  
+        function shanshuo(){  
+            if(allTds[m][n].className =="hei"){  
+                allTds[m][n].className ="bai";  
+            }else{  
+                allTds[m][n].className ="hei";  
+            }  
+            shan = setTimeout("shanshuo()",500);  
+        }  
+        function overItC(){//结束游戏  
+            westop();  
+            alert("吃自己了！最终得分："+mark)  
+        }  
+        function overItZ(){//结束游戏  
+            westop();  
+            alert("撞墙了！最终得分："+mark)  
+        }  
+        function zengIt(){//吃到虫子增长长分  
+            she[she.length] = allTds[m][n];  
+            k+=1;  
+            mark+=1;//每次得1分，可自己改  
+            document.getElementById("mark").value = mark;  
+            shiwu();  
+            }  
+        function westop(){  
+            if(ji!=null){  
+                clearTimeout(ji)  
+            }  
+            if(shan!=null){  
+                clearTimeout(shan)  
+            }  
+        }  
+        function in_array(ch){//验证是否吃到自己  
+            var inflag = true;  
+                for (var i = 0; i < she.length; i++) {  
+                    if (she[i] == ch) {  
+                        inflag = false;  
+                    }  
+                }  
+            return inflag  
+        }  
+        function westart(){  
+            if(dir==1&&dirLin!=2){
+                dir=dirLin;
+            }  
+            if(dir==2&&dirLin!=1){
+                dir=dirLin;
+            }  
+            if(dir==3&&dirLin!=4){
+                dir=dirLin;
+            }
+            if(dir==4&&dirLin!=3){
+                dir=dirLin;  
+            }
+            if(dir==1){  
+                if(y+1<ck){  
+                    if(in_array(allTds[x][y+1])){  
+                        sheYin(she);  
+                        if(x==m&&y+1==n){//如果吃到了虫子  
+                            zengIt();  
+                        }else{  
+                            for(var o=0;o<she.length-1;o++){  
+                                she[o] = she[o+1];  
+                            }  
+                            she[k-1] = allTds[x][y+1];  
+                            }                 
+                        sheXian(she);  
+                        y+=1;  
+                        ji = setTimeout("westart()",sudu);  
+                    }else{  
+                        overItC();  
+                    }  
+                }else{  
+                    overItZ();  
+                }  
+            }  
+            if(dir==2){  
+                if(y-1>=0){  
+                    if(in_array(allTds[x][y-1])){  
+                        sheYin(she);  
+                        if(x==m&&y-1==n){//如果吃到了虫子  
+                            zengIt();  
+                        }else{  
+                            for(var o=0;o<she.length-1;o++){  
+                                she[o] = she[o+1];  
+                            }  
+                            she[k-1] = allTds[x][y-1];  
+                            }     
+                        sheXian(she);  
+                        y-=1;  
+                        ji = setTimeout("westart()",sudu);  
+                    }else{  
+                        overItC();  
+                    }  
+                }else{  
+                    overItZ();  
+                }  
+            }  
+            if(dir==3){  
+                if(x-1>=0){  
+                    if(in_array(allTds[x-1][y])){  
+                        sheYin(she);  
+                        if(x-1==m&&y==n){//如果吃到了虫子  
+                            zengIt();  
+                        }else{  
+                            for(var o=0;o<she.length-1;o++){  
+                                she[o] = she[o+1];  
+                            }  
+                            she[k-1] = allTds[x-1][y];  
+                            }             
+                        sheXian(she);  
+                        x-=1;  
+                        ji = setTimeout("westart()",sudu);  
+                    }else{  
+                        overItC();  
+                        }  
+                }else{  
+                    overItZ();  
+                }  
+            }  
+            if(dir==4){  
+                if(x+1<30){  
+                    if(in_array(allTds[x+1][y])){  
+                        sheYin(she);  
+                        if(x+1==m&&y==n){//如果吃到了虫子  
+                            zengIt();  
+                        }else{  
+                            for(var o=0;o<she.length-1;o++){  
+                                she[o] = she[o+1];  
+                            }  
+                            she[k-1] = allTds[x+1][y];  
+                            }             
+                        sheXian(she);  
+                        x+=1;  
+                        ji = setTimeout("westart()",sudu);  
+                    }else{  
+                        overItC();  
+                    }  
+                }else{  
+                    overItZ();  
+                }  
+            }  
+        }  
+        function keyDown(event){//接受键盘改变方向  
+          
+            if(event.keyCode==39){//左箭头  
+                dirLin =1;  
+            }  
+            if(event.keyCode==37){//右箭头  
+                dirLin =2;  
+            }  
+            if(event.keyCode==38){//上箭头  
+                dirLin =3;  
+            }  
+            if(event.keyCode==40){//下箭头  
+                dirLin =4;  
+            }  
+        }  
+    </script>  
+    <table cellpadding="0" cellspacing="0" id="she" align="center"></table>  
+    <table cellpadding="0" cellspacing="0" width="300px;" align="center">  
+    <tr>  
+    <td><input type="button" value="start" onclick="westart()"/></td>  
+    <td>得分：<input id="mark" type="text" value="0" readonly size=3/></td>  
+    <td><input type="button" value="stop" onclick="westop()"/></td>  
+    </tr>  
+    </table>
+
+
+
+</body>
+</html>
